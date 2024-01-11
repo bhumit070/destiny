@@ -40,4 +40,7 @@ var ExcludedFileList = map[string]string{
 	// go
 	"go.mod": "go.mod",
 	"go.sum": "go.sum",
+
+	//Linux
+	"Makefile": "Makefile",
 }

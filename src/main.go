@@ -3,6 +3,7 @@ package main
 import (
 	"bhumit070/destiny/src/config"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"strings"
@@ -38,6 +39,22 @@ func main() {
 
 	if !fileInfo.IsDir() {
 		fmt.Println(directory, "is not a directory")
+		os.Exit(0)
+	}
+
+	fmt.Print("Are you sure it will alter the files in the " + directory + "? (y/N)")
+	var answer string
+	_, inputReadError := fmt.Scanln(&answer)
+
+	if inputReadError != nil {
+		log.Fatal(inputReadError.Error())
+		os.Exit(1)
+	}
+
+	answer = strings.TrimSpace(answer)
+
+	if answer != "y" {
+		fmt.Println("Aborting")
 		os.Exit(0)
 	}
 
