@@ -10,9 +10,18 @@ import (
 )
 
 func main() {
-
 	args := os.Args[1:]
+	directory := validateInput(args)
 
+	var directoryFileList map[string][]string = make(map[string][]string)
+
+	userInput(directory)
+	findFilesInDirectory(directory, &directoryFileList)
+	alterDirectory(directory, &directoryFileList)
+
+}
+
+func validateInput(args []string) string {
 	var directory string
 	if len(args) > 0 {
 		directory = args[0]
@@ -41,7 +50,10 @@ func main() {
 		fmt.Println(directory, "is not a directory")
 		os.Exit(0)
 	}
+	return directory
+}
 
+func userInput(directory string) {
 	fmt.Print("Are you sure it will alter the files in the " + directory + "? (y/N)")
 	var answer string
 	_, inputReadError := fmt.Scanln(&answer)
@@ -57,15 +69,15 @@ func main() {
 		fmt.Println("Aborting")
 		os.Exit(0)
 	}
+}
 
+func findFilesInDirectory(directory string, directoryFileList *map[string][]string) {
 	fileList, err := os.ReadDir(directory)
 
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-
-	var directoryFileList map[string][]string = make(map[string][]string)
 
 	for _, file := range fileList {
 		if file.IsDir() {
@@ -79,10 +91,12 @@ func main() {
 
 		splitFileName := strings.Split(fileName, ".")
 		fileExtension := splitFileName[len(splitFileName)-1]
-		directoryFileList[fileExtension] = append(directoryFileList[fileExtension], fileName)
+		(*directoryFileList)[fileExtension] = append((*directoryFileList)[fileExtension], fileName)
 	}
+}
 
-	for fileExtension, fileNames := range directoryFileList {
+func alterDirectory(directory string, directoryFileList *map[string][]string) {
+	for fileExtension, fileNames := range *directoryFileList {
 		createDirectoryError := os.MkdirAll(fileExtension, 0755)
 		if createDirectoryError != nil {
 			fmt.Println(createDirectoryError.Error())
@@ -94,5 +108,4 @@ func main() {
 			os.Rename(source, destination)
 		}
 	}
-
 }
