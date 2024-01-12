@@ -10,15 +10,18 @@ import (
 	"time"
 )
 
+type DirectoryFileList = map[string][]string
+
 func main() {
 	args := os.Args[1:]
 	directory := validateInput(args)
 
-	var directoryFileList map[string][]string = make(map[string][]string)
+	var directoryFileList DirectoryFileList = make(map[string][]string)
 
 	userInput(directory)
 	findFilesInDirectory(directory, &directoryFileList)
 	alterDirectory(directory, &directoryFileList)
+	showStats(&directoryFileList)
 
 }
 
@@ -72,7 +75,7 @@ func userInput(directory string) {
 	}
 }
 
-func findFilesInDirectory(directory string, directoryFileList *map[string][]string) {
+func findFilesInDirectory(directory string, directoryFileList *DirectoryFileList) {
 	fileList, err := os.ReadDir(directory)
 
 	if err != nil {
@@ -96,7 +99,7 @@ func findFilesInDirectory(directory string, directoryFileList *map[string][]stri
 	}
 }
 
-func alterDirectory(directory string, directoryFileList *map[string][]string) {
+func alterDirectory(directory string, directoryFileList *DirectoryFileList) {
 	for fileExtension, fileNames := range *directoryFileList {
 		createDirectoryError := os.MkdirAll(fileExtension, 0755)
 		if createDirectoryError != nil {
@@ -133,4 +136,13 @@ func alterDirectory(directory string, directoryFileList *map[string][]string) {
 			os.Rename(source, destination)
 		}
 	}
+}
+
+func showStats(directoryFileList *DirectoryFileList) {
+	totalFiles := 0
+	for fileExtension, fileNames := range *directoryFileList {
+		totalFiles += len(fileNames)
+		fmt.Println("Moved ", len(fileNames), " ", fileExtension, " file(s) to "+fileExtension)
+	}
+	fmt.Println("Total files moved: ", totalFiles)
 }
