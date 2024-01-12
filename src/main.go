@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -100,42 +101,48 @@ func findFilesInDirectory(directory string, directoryFileList *DirectoryFileList
 }
 
 func alterDirectory(directory string, directoryFileList *DirectoryFileList) {
+	var wg sync.WaitGroup
 	for fileExtension, fileNames := range *directoryFileList {
-		createDirectoryError := os.MkdirAll(fileExtension, 0755)
-		if createDirectoryError != nil {
-			fmt.Println(createDirectoryError.Error())
-			os.Exit(1)
-		}
-		for _, fileName := range fileNames {
-			source := path.Join(directory, fileName)
-			destination := path.Join(directory, fileExtension, fileName)
+		wg.Add(1)
+		go func(fileExtension string, fileNames []string) {
+			defer wg.Done()
+			createDirectoryError := os.MkdirAll(fileExtension, 0755)
+			if createDirectoryError != nil {
+				fmt.Println(createDirectoryError.Error())
+				os.Exit(1)
+			}
+			for _, fileName := range fileNames {
+				source := path.Join(directory, fileName)
+				destination := path.Join(directory, fileExtension, fileName)
 
-			// check if destination exists
-			_, err := os.Stat(destination)
-			if err == nil {
-				splitFileWithExtension := strings.Split(fileName, ".")
+				// check if destination exists
+				_, err := os.Stat(destination)
+				if err == nil {
+					splitFileWithExtension := strings.Split(fileName, ".")
 
-				destination = ""
+					destination = ""
 
-				i := 0
+					i := 0
 
-				for i < len(splitFileWithExtension)-1 {
-					if i == len(splitFileWithExtension)-2 {
-						destination += splitFileWithExtension[i] + "_" + fmt.Sprintf("%d", time.Now().Unix())
-					} else {
-						destination += (splitFileWithExtension[i] + ".")
+					for i < len(splitFileWithExtension)-1 {
+						if i == len(splitFileWithExtension)-2 {
+							destination += splitFileWithExtension[i] + "_" + fmt.Sprintf("%d", time.Now().Unix())
+						} else {
+							destination += (splitFileWithExtension[i] + ".")
+						}
+						i += 1
 					}
-					i += 1
+
+					destination += "." + splitFileWithExtension[len(splitFileWithExtension)-1]
+
+					destination = path.Join(directory, fileExtension, destination)
 				}
 
-				destination += "." + splitFileWithExtension[len(splitFileWithExtension)-1]
-
-				destination = path.Join(directory, fileExtension, destination)
+				os.Rename(source, destination)
 			}
-
-			os.Rename(source, destination)
-		}
+		}(fileExtension, fileNames)
 	}
+	wg.Wait()
 }
 
 func showStats(directoryFileList *DirectoryFileList) {
