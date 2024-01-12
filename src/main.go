@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -105,6 +106,30 @@ func alterDirectory(directory string, directoryFileList *map[string][]string) {
 		for _, fileName := range fileNames {
 			source := path.Join(directory, fileName)
 			destination := path.Join(directory, fileExtension, fileName)
+
+			// check if destination exists
+			_, err := os.Stat(destination)
+			if err == nil {
+				splitFileWithExtension := strings.Split(fileName, ".")
+
+				destination = ""
+
+				i := 0
+
+				for i < len(splitFileWithExtension)-1 {
+					if i == len(splitFileWithExtension)-2 {
+						destination += splitFileWithExtension[i] + "_" + fmt.Sprintf("%d", time.Now().Unix())
+					} else {
+						destination += splitFileWithExtension[i]
+					}
+					i += 1
+				}
+
+				destination += "." + splitFileWithExtension[len(splitFileWithExtension)-1]
+
+				destination = path.Join(directory, fileExtension, destination)
+			}
+
 			os.Rename(source, destination)
 		}
 	}
