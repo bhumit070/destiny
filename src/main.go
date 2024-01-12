@@ -120,7 +120,7 @@ func alterDirectory(directory string, directoryFileList *map[string][]string) {
 					if i == len(splitFileWithExtension)-2 {
 						destination += splitFileWithExtension[i] + "_" + fmt.Sprintf("%d", time.Now().Unix())
 					} else {
-						destination += splitFileWithExtension[i]
+						destination += (splitFileWithExtension[i] + ".")
 					}
 					i += 1
 				}
