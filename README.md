@@ -8,6 +8,7 @@
   - [Table of contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Features](#features)
+  - [Installation](#installation)
   - [Usage](#usage)
   - [Contributing](#contributing)
 
@@ -20,6 +21,14 @@
 - Scans files in a given directory.
 - Automatically organizes files into folders based on their extensions.
 - Creates folders on the fly if they don't exist.
+
+## Installation
+
+To install this cli tool run the below command in your terminal
+
+```bash
+curl https://raw.githubusercontent.com/bhumit070/destiny/main/install.sh | bash
+```
 
 ## Usage
 
