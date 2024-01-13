@@ -10,6 +10,7 @@
   - [Features](#features)
   - [Installation](#installation)
   - [Usage](#usage)
+    - [Arguments](#arguments)
   - [Contributing](#contributing)
 
 ## Introduction
@@ -37,6 +38,13 @@ destiny PATH_TO_DIRECTORY
 ```
 
 - if no directory is passed it will use current directory
+
+### Arguments
+
+| Flag | Description                                                                 |
+| :--- | :-------------------------------------------------------------------------- |
+| -y   | If this flag is passed it won't ask for user confirmation before proceeding |
+| -q   | it won't show how many files moved after command is done executing          |
 
 ## Contributing
 
