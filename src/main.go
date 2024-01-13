@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -16,14 +17,37 @@ type DirectoryFileList = map[string][]string
 func main() {
 	args := os.Args[1:]
 	directory := validateInput(args)
+	flags := parseFlags(args)
 
 	var directoryFileList DirectoryFileList = make(map[string][]string)
 
-	userInput(directory)
+	userInput(directory, &flags)
 	findFilesInDirectory(directory, &directoryFileList)
 	alterDirectory(directory, &directoryFileList)
-	showStats(&directoryFileList)
+	showStats(&directoryFileList, &flags)
 
+}
+
+func parseFlags(args []string) config.InputFlags {
+	var inputString string = ""
+	for _, arg := range args {
+		inputString += arg + " "
+	}
+
+	re := regexp.MustCompile(`-([a-zA-Z]+)`)
+	matches := re.FindAllStringSubmatch(inputString, -1)
+	var flags = make(map[string]string)
+	for _, match := range matches {
+		_flags := strings.Split(match[1], "")
+		for _, _flag := range _flags {
+			if _, ok := config.ValidFlags[strings.Trim(_flag, " ")]; ok {
+				trimmedFlag := strings.Trim(_flag, " ")
+				flags[trimmedFlag] = trimmedFlag
+			}
+		}
+	}
+
+	return flags
 }
 
 func validateInput(args []string) string {
@@ -58,7 +82,12 @@ func validateInput(args []string) string {
 	return directory
 }
 
-func userInput(directory string) {
+func userInput(directory string, flags *config.InputFlags) {
+
+	if isFlagExists("y", flags) {
+		return
+	}
+
 	fmt.Print("Are you sure it will alter the files in the " + directory + "? (y/N)")
 	var answer string
 	_, inputReadError := fmt.Scanln(&answer)
@@ -145,11 +174,25 @@ func alterDirectory(directory string, directoryFileList *DirectoryFileList) {
 	wg.Wait()
 }
 
-func showStats(directoryFileList *DirectoryFileList) {
+func showStats(directoryFileList *DirectoryFileList, flags *config.InputFlags) {
+
+	if isFlagExists("q", flags) {
+		return
+	}
+
 	totalFiles := 0
 	for fileExtension, fileNames := range *directoryFileList {
 		totalFiles += len(fileNames)
 		fmt.Println("Moved ", len(fileNames), " ", fileExtension, " file(s) to "+fileExtension)
 	}
 	fmt.Println("Total files moved: ", totalFiles)
+}
+
+func isFlagExists(flag string, flags *config.InputFlags) bool {
+	if _, ok := config.ValidFlags[flag]; ok {
+		if _, _ok := (*flags)[flag]; _ok {
+			return true
+		}
+	}
+	return false
 }
