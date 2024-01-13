@@ -16,8 +16,8 @@ type DirectoryFileList = map[string][]string
 
 func main() {
 	args := os.Args[1:]
+	flags := parseFlags(&args)
 	directory := validateInput(args)
-	flags := parseFlags(args)
 
 	var directoryFileList DirectoryFileList = make(map[string][]string)
 
@@ -28,22 +28,42 @@ func main() {
 
 }
 
-func parseFlags(args []string) config.InputFlags {
+func parseFlags(args *[]string) config.InputFlags {
 	var inputString string = ""
-	for _, arg := range args {
+	for _, arg := range *args {
 		inputString += arg + " "
 	}
 
 	re := regexp.MustCompile(`-([a-zA-Z]+)`)
 	matches := re.FindAllStringSubmatch(inputString, -1)
 	var flags = make(map[string]string)
-	for _, match := range matches {
+	var indexesToRemoveFromArgs []int = make([]int, 0, len(matches))
+	for index, match := range matches {
 		_flags := strings.Split(match[1], "")
 		for _, _flag := range _flags {
 			if _, ok := config.ValidFlags[strings.Trim(_flag, " ")]; ok {
 				trimmedFlag := strings.Trim(_flag, " ")
 				flags[trimmedFlag] = trimmedFlag
 			}
+		}
+		indexToRemove := -1
+		if (*args)[index] == match[0] {
+			indexToRemove = index
+		} else if (*args)[index+1] == match[0] {
+			indexToRemove = index + 1
+		}
+		indexesToRemoveFromArgs = append(indexesToRemoveFromArgs, indexToRemove)
+	}
+	if len(indexesToRemoveFromArgs) > 0 {
+
+		for iteration, indexToRemove := range indexesToRemoveFromArgs {
+			start := indexToRemove
+			if indexToRemove-iteration < 0 {
+				start = 0
+			} else {
+				start = indexToRemove - iteration
+			}
+			*args = append((*args)[:start], (*args)[indexToRemove+1-iteration:]...)
 		}
 	}
 
