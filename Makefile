@@ -28,8 +28,8 @@ build_all:
 	@GOOS=darwin GOARCH=amd64 go build -o "bin/$(BINARY_NAME)-darwin-amd64" src/main.go
 	@echo "Building darwin arm64 binary..."
 	@GOOS=darwin GOARCH=arm64 go build -o "bin/$(BINARY_NAME)-darwin-arm64" src/main.go
-	@echo "Building windows amd64 binary..."
-	@GOOS=windows GOARCH=amd64 go build -o "bin/$(BINARY_NAME)-windows-amd64.exe" src/main.go
+	#@echo "Building windows amd64 binary..."
+	#@GOOS=windows GOARCH=amd64 go build -o "bin/$(BINARY_NAME)-windows-amd64.exe" src/main.go
 
 clean:
 	@echo "Cleaning..."
