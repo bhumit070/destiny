@@ -28,5 +28,5 @@ destinationPath="$installDir/destiny"
 mkdir -p "$installDir"
 curl -# -L "$downloadableUrl" -o "$destinationPath" && chmod +x "$destinationPath"
 
-echo "PATH=$PATH:$installDir" >>"$HOME/$shellFile"
+echo "PATH=\$PATH:\$HOME/.destiny" >>"$HOME/$shellFile"
 echo "installation completed."
