@@ -27,6 +27,8 @@
 
 To install this cli tool run the below command in your terminal
 
+- For **mac** and **linux** users
+
 ```bash
 curl https://raw.githubusercontent.com/bhumit070/destiny/main/install.sh | bash
 ```
