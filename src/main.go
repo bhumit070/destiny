@@ -23,9 +23,25 @@ func main() {
 
 	userInput(directory, &flags)
 	findFilesInDirectory(directory, &directoryFileList)
+	checkForFolderGroups(&directoryFileList, &flags)
 	alterDirectory(directory, &directoryFileList)
 	showStats(&directoryFileList, &flags)
 
+}
+
+func checkForFolderGroups(directoryFileList *DirectoryFileList, flags *config.InputFlags) {
+
+	if config.IsFlagExists("nfg", flags) {
+		return
+	}
+
+	for key, value := range *directoryFileList {
+		if _, ok := config.FolderGroups[key]; ok {
+			delete(*directoryFileList, key)
+			(*directoryFileList)[config.FolderGroups[key]+key] = value
+
+		}
+	}
 }
 
 func parseFlags(args *[]string) config.InputFlags {
@@ -39,19 +55,27 @@ func parseFlags(args *[]string) config.InputFlags {
 	var flags = make(map[string]string)
 	var indexesToRemoveFromArgs []int = make([]int, 0, len(matches))
 	for index, match := range matches {
-		_flags := strings.Split(match[1], "")
-		for _, _flag := range _flags {
-			if _, ok := config.ValidFlags[strings.Trim(_flag, " ")]; ok {
+		if config.IsValidFlag(strings.Trim(match[1], "")) {
+			trimmedFlag := strings.Trim(match[1], " ")
+			flags[trimmedFlag] = trimmedFlag
+		} else {
+			_flags := strings.Split(match[1], "")
+			for _, _flag := range _flags {
 				trimmedFlag := strings.Trim(_flag, " ")
-				flags[trimmedFlag] = trimmedFlag
+				if config.IsValidFlag(trimmedFlag) {
+					flags[trimmedFlag] = trimmedFlag
+				}
 			}
 		}
+
 		indexToRemove := -1
+
 		if (*args)[index] == match[0] {
 			indexToRemove = index
 		} else if (*args)[index+1] == match[0] {
 			indexToRemove = index + 1
 		}
+
 		indexesToRemoveFromArgs = append(indexesToRemoveFromArgs, indexToRemove)
 	}
 	if len(indexesToRemoveFromArgs) > 0 {
@@ -66,7 +90,6 @@ func parseFlags(args *[]string) config.InputFlags {
 			*args = append((*args)[:start], (*args)[indexToRemove+1-iteration:]...)
 		}
 	}
-
 	return flags
 }
 
@@ -104,7 +127,7 @@ func validateInput(args []string) string {
 
 func userInput(directory string, flags *config.InputFlags) {
 
-	if isFlagExists("y", flags) {
+	if config.IsFlagExists("y", flags) {
 		return
 	}
 
@@ -196,7 +219,7 @@ func alterDirectory(directory string, directoryFileList *DirectoryFileList) {
 
 func showStats(directoryFileList *DirectoryFileList, flags *config.InputFlags) {
 
-	if isFlagExists("q", flags) {
+	if config.IsFlagExists("q", flags) {
 		return
 	}
 
@@ -206,13 +229,4 @@ func showStats(directoryFileList *DirectoryFileList, flags *config.InputFlags) {
 		fmt.Println("Moved ", len(fileNames), " ", fileExtension, " file(s) to "+fileExtension)
 	}
 	fmt.Println("Total files moved: ", totalFiles)
-}
-
-func isFlagExists(flag string, flags *config.InputFlags) bool {
-	if _, ok := config.ValidFlags[flag]; ok {
-		if _, _ok := (*flags)[flag]; _ok {
-			return true
-		}
-	}
-	return false
 }

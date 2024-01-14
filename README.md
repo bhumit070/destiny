@@ -43,10 +43,11 @@ destiny PATH_TO_DIRECTORY
 
 ### Arguments
 
-| Flag | Description                                                                 |
-| :--- | :-------------------------------------------------------------------------- |
-| -y   | If this flag is passed it won't ask for user confirmation before proceeding |
-| -q   | it won't show how many files moved after command is done executing          |
+| Flag | Description                                                                                                                                                                                    |
+| :--- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| -y   | If this flag is passed it won't ask for user confirmation before proceeding                                                                                                                    |
+| -q   | It won't show how many files moved after command is done executing                                                                                                                             |
+| -nfg | If this flag is passed the cli will not use folder groups ( default: true) ( note: this flag needs to be passed separately else it won't work example (destiny -ynfg ❌ , destiny -y -nfg ✅)) |
 
 ## Contributing
 
