@@ -127,7 +127,14 @@ func validateInput(args []string) string {
 
 func userInput(directory string, flags *config.InputFlags) {
 
-	if config.IsFlagExists("y", flags) {
+	userHomeDirectory, err := os.UserHomeDir()
+
+	if err != nil {
+		log.Fatal(err.Error())
+		os.Exit(1)
+	}
+
+	if config.IsFlagExists("y", flags) && directory != userHomeDirectory {
 		return
 	}
 
