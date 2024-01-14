@@ -23,9 +23,20 @@ func main() {
 
 	userInput(directory, &flags)
 	findFilesInDirectory(directory, &directoryFileList)
+	checkForFolderGroups(&directoryFileList)
 	alterDirectory(directory, &directoryFileList)
 	showStats(&directoryFileList, &flags)
 
+}
+
+func checkForFolderGroups(directoryFileList *DirectoryFileList) {
+	for key, value := range *directoryFileList {
+		if _, ok := config.FolderGroups[key]; ok {
+			delete(*directoryFileList, key)
+			(*directoryFileList)[config.FolderGroups[key]+key] = value
+
+		}
+	}
 }
 
 func parseFlags(args *[]string) config.InputFlags {
