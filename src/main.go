@@ -10,6 +10,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/charmbracelet/bubbles/table"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type DirectoryFileList = map[string][]string
@@ -224,6 +228,46 @@ func alterDirectory(directory string, directoryFileList *DirectoryFileList) {
 	wg.Wait()
 }
 
+var baseStyle = lipgloss.NewStyle().
+	BorderStyle(lipgloss.NormalBorder()).
+	BorderForeground(lipgloss.Color("240"))
+
+type model struct {
+	table table.Model
+}
+
+func (m model) Init() tea.Cmd {
+	return nil
+}
+
+func (m model) View() string {
+	return baseStyle.Render(m.table.View()) + "\n"
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "esc":
+			if m.table.Focused() {
+				m.table.Blur()
+			} else {
+				m.table.Focus()
+			}
+		case "q", "ctrl+c":
+			return m, tea.Quit
+		case "down":
+			m.table.MoveDown(1)
+		case "up":
+			m.table.MoveUp(1)
+		}
+	}
+
+	m.table, cmd = m.table.Update(msg)
+	return m, cmd
+}
+
 func showStats(directoryFileList *DirectoryFileList, flags *config.InputFlags) {
 
 	if config.IsFlagExists("q", flags) {
@@ -231,9 +275,38 @@ func showStats(directoryFileList *DirectoryFileList, flags *config.InputFlags) {
 	}
 
 	totalFiles := 0
+
+	var rows []table.Row
 	for fileExtension, fileNames := range *directoryFileList {
 		totalFiles += len(fileNames)
-		fmt.Println("Moved ", len(fileNames), " ", fileExtension, " file(s) to "+fileExtension)
+		str := fmt.Sprintf("%d", len(fileNames))
+		rows = append(rows, table.Row{
+			fileExtension,
+			str,
+		})
 	}
-	fmt.Println("Total files moved: ", totalFiles)
+
+	if totalFiles == 0 {
+		fmt.Println("No files moved")
+		return
+	}
+
+	columns := []table.Column{
+		{
+			Title: "File Extension",
+			Width: 20,
+		},
+		{
+			Title: "Moved Count",
+			Width: 20,
+		},
+	}
+
+	t := table.New(
+		table.WithColumns(columns),
+		table.WithRows(rows),
+		table.WithHeight(len(rows)+1),
+	)
+	m := model{table: t}
+	tea.NewProgram(m).Run()
 }
