@@ -28,7 +28,7 @@ func main() {
 	userInput(directory, &flags)
 	findFilesInDirectory(directory, &directoryFileList)
 	checkForFolderGroups(&directoryFileList, &flags)
-	alterDirectory(directory, &directoryFileList)
+	//alterDirectory(directory, &directoryFileList)
 	showStats(&directoryFileList, &flags)
 
 }
@@ -308,5 +308,8 @@ func showStats(directoryFileList *DirectoryFileList, flags *config.InputFlags) {
 		table.WithHeight(len(rows)+1),
 	)
 	m := model{table: t}
+	time.AfterFunc(1*time.Second, func() {
+		os.Exit(0)
+	})
 	tea.NewProgram(m).Run()
 }
