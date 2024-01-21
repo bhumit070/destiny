@@ -28,5 +28,12 @@ destinationPath="$installDir/destiny"
 mkdir -p "$installDir"
 curl -# -L "$downloadableUrl" -o "$destinationPath" && chmod +x "$destinationPath"
 
-echo "PATH=\$PATH:\$HOME/.destiny" >>"$HOME/$shellFile"
+command="export PATH=\$PATH:\$HOME/.destiny"
+if grep -q "$command" "$HOME/$shellFile"; then
+   echo "already installed."
+   exit 0
+fi
+
+echo $command >> "$HOME/$shellFile"
+
 echo "installation completed."

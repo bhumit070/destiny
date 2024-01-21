@@ -43,4 +43,8 @@ var ExcludedFileList = map[string]string{
 
 	// Linux
 	"Makefile": "Makefile",
+
+	// MD
+	"README.md":  "README.md",
+	"LICENSE.md": "LICENSE.md",
 }
