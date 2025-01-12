@@ -28,7 +28,7 @@ func main() {
 	userInput(directory, &flags)
 	findFilesInDirectory(directory, &directoryFileList)
 	checkForFolderGroups(&directoryFileList, &flags)
-	//alterDirectory(directory, &directoryFileList)
+	alterDirectory(directory, &directoryFileList)
 	showStats(&directoryFileList, &flags)
 
 }
@@ -177,8 +177,13 @@ func findFilesInDirectory(directory string, directoryFileList *DirectoryFileList
 			continue
 		}
 
-		splitFileName := strings.Split(fileName, ".")
-		fileExtension := splitFileName[len(splitFileName)-1]
+		fileExtension := path.Ext(fileName)
+
+		if fileExtension == "" {
+			fileExtension = "others"
+		} else {
+			fileExtension = fileExtension[1:]
+		}
 		(*directoryFileList)[fileExtension] = append((*directoryFileList)[fileExtension], fileName)
 	}
 }
@@ -197,6 +202,16 @@ func alterDirectory(directory string, directoryFileList *DirectoryFileList) {
 			for _, fileName := range fileNames {
 				source := path.Join(directory, fileName)
 				destination := path.Join(directory, fileExtension, fileName)
+
+				// check if destination folder exists or not
+				destinationFolderPath := path.Join(directory, fileExtension)
+				_, destinationDirError := os.Stat(destinationFolderPath)
+
+				if destinationDirError != nil {
+					if os.IsNotExist(destinationDirError) {
+						os.MkdirAll(destinationFolderPath, os.ModePerm)
+					}
+				}
 
 				// check if destination exists
 				_, err := os.Stat(destination)
@@ -221,6 +236,7 @@ func alterDirectory(directory string, directoryFileList *DirectoryFileList) {
 					destination = path.Join(directory, fileExtension, destination)
 				}
 
+				fmt.Sprintln("moved %s to %s", source, destination)
 				os.Rename(source, destination)
 			}
 		}(fileExtension, fileNames)
