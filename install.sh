@@ -20,7 +20,7 @@ else
    echo "something else"
 fi
 platform="destiny-$platform"
-downloadableUrl="https://github.com/bhumit070/destiny/releases/download/latest/$platform"
+downloadableUrl="https://github.com/bhumit070/destiny/releases/latest/download/$platform"
 echo "downloading..."
 installDir="$HOME/.destiny"
 destinationPath="$installDir/destiny"
