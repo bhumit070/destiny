@@ -183,6 +183,7 @@ func findFilesInDirectory(directory string, directoryFileList *DirectoryFileList
 			fileExtension = "others"
 		} else {
 			fileExtension = fileExtension[1:]
+			fileExtension = strings.ToLower(fileExtension)
 		}
 		(*directoryFileList)[fileExtension] = append((*directoryFileList)[fileExtension], fileName)
 	}
