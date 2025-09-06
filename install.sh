@@ -20,8 +20,7 @@ else
    echo "something else"
 fi
 platform="destiny-$platform"
-tagName=$(curl -s https://api.github.com/repos/bhumit070/destiny/releases/136918205 | awk -F'"tag_name":' '{print $2}' | awk -F'"' '{print $2}' | xargs)
-downloadableUrl="https://github.com/bhumit070/destiny/releases/download/$tagName/$platform"
+downloadableUrl="https://github.com/bhumit070/destiny/releases/download/latest/$platform"
 echo "downloading..."
 installDir="$HOME/.destiny"
 destinationPath="$installDir/destiny"
@@ -29,11 +28,11 @@ mkdir -p "$installDir"
 curl -# -L "$downloadableUrl" -o "$destinationPath" && chmod +x "$destinationPath"
 
 command="export PATH=\$PATH:\$HOME/.destiny"
-if grep -q "$command" "$HOME/$shellFile"; then
-   echo "already installed."
-   exit 0
-fi
+#if grep -q "$command" "$HOME/$shellFile"; then
+#   echo "already installed."
+#   exit 0
+#fi
 
-echo $command >> "$HOME/$shellFile"
+echo $command >>"$HOME/$shellFile"
 
 echo "installation completed."
